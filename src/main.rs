@@ -57,7 +57,7 @@ fn main() {
 
     // ascii config
     let ascii_config =  effects::AsciiConfig {
-        charset: String::from(" .-/+=[&$%#@"),
+        charset: String::from(" .'-/=+*[&$%#@"),
         invert: false,
         scale: down_scale,
         font: FontRef::try_from_slice(include_bytes!("../fonts/Bescii-Mono.ttf"))
