@@ -1,7 +1,7 @@
 pub mod effects {
     use ab_glyph::{FontRef, PxScale};
     use image::{DynamicImage, GrayImage, Luma, Rgb, RgbImage, imageops};
-    use imageproc::{self, drawing::draw_text};
+    use imageproc::{self, drawing::draw_text_mut};
     use std::time::Instant;
 
     pub struct AsciiConfig {
@@ -60,13 +60,13 @@ pub mod effects {
                 char_batch.push(lum_table[luminance as usize]);
             }
             
-            output_img = draw_text(
-                &output_img, 
-                text_color, 
-                0, 
-                (y as f32 * config.scale) as i32, 
-                font_scale, 
-                font, 
+            draw_text_mut(
+                &mut output_img,
+                text_color,
+                0,
+                (y as f32 * config.scale) as i32,
+                font_scale,
+                font,
                 &char_batch
             );
         }
@@ -97,13 +97,13 @@ pub mod effects {
 
         let mut char_batch = String::with_capacity(nwidth as usize);
         
-        let draw_text_mut = |output: &mut RgbImage,
-                             batch: &str,
-                             color: Rgb<u8>,
-                             x: i32,
-                             y: i32| {
+        let flush = |output: &mut RgbImage,
+                     batch: &str,
+                     color: Rgb<u8>,
+                     x: i32,
+                     y: i32| {
             if !batch.is_empty() {
-                *output = draw_text(output, color, x, y, font_scale, font, batch);
+                draw_text_mut(output, color, x, y, font_scale, font, batch);
             }
         };
         
@@ -124,7 +124,7 @@ pub mod effects {
                 // skip spaces
                 if ch.is_whitespace() {
                     if !batch_empty {
-                        draw_text_mut(
+                        flush(
                             &mut output_img,
                             &char_batch,
                             batch_color,
@@ -139,7 +139,7 @@ pub mod effects {
 
                 // flush batch on color change
                 if !batch_empty && current_color != batch_color {
-                    draw_text_mut(
+                    flush(
                         &mut output_img,
                         &char_batch,
                         batch_color,
@@ -162,7 +162,7 @@ pub mod effects {
             
             // flush remaining batch for this row
             if !batch_empty {
-                draw_text_mut(
+                flush(
                     &mut output_img,
                     &char_batch,
                     batch_color,
